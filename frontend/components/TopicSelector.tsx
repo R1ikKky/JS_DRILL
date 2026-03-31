@@ -24,16 +24,35 @@ export default function TopicSelector({
             key={topic}
             onClick={() => onSelect(topic)}
             disabled={disabled}
-            className={[
-              'px-4 py-3 text-xs tracking-[0.15em] uppercase text-left',
-              'border transition-all duration-150',
-              'disabled:cursor-not-allowed disabled:opacity-40',
-              isActive
-                ? 'border-[var(--cyan)] text-[var(--cyan)] bg-[rgba(0,212,255,0.07)]'
-                : 'border-[var(--border)] text-[var(--muted)] hover:border-[var(--cyan)] hover:text-[var(--cyan)]',
-            ].join(' ')}
+            className={`topic-btn${isActive ? ' active' : ''}`}
+            style={{
+              padding: '12px 16px',
+              textAlign: 'left',
+              border: `var(--border-width) solid ${isActive ? 'var(--accent)' : 'var(--border)'}`,
+              borderRadius: 'var(--radius-sm)',
+              background: isActive
+                ? 'color-mix(in srgb, var(--accent) 8%, transparent)'
+                : 'transparent',
+              color: isActive ? 'var(--accent)' : 'var(--muted)',
+              fontFamily: 'var(--font-body)',
+              fontSize: '12px',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              cursor: disabled ? 'not-allowed' : 'pointer',
+              opacity: disabled ? 0.4 : 1,
+              transition: 'all 0.15s',
+              boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
+            }}
           >
-            <span className="block text-[10px] text-[var(--muted)] mb-1 tracking-[0.2em]">
+            <span
+              style={{
+                display: 'block',
+                fontSize: '10px',
+                color: 'var(--muted)',
+                marginBottom: '4px',
+                letterSpacing: '0.2em',
+              }}
+            >
               {topic.toUpperCase()}
             </span>
             {TOPIC_LABELS[topic]}

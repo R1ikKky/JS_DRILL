@@ -15,19 +15,15 @@ function parseQuestion(text: string): QuestionPart[] {
       parts.push({ type: 'text', content: remaining });
       break;
     }
-
     if (codeStart > 0) {
       parts.push({ type: 'text', content: remaining.slice(0, codeStart) });
     }
-
     const afterOpen = remaining.slice(codeStart + 6);
     const codeEnd = afterOpen.indexOf('[/CODE]');
     if (codeEnd === -1) {
-      // Stream hasn't delivered [/CODE] yet — show partial code block
       parts.push({ type: 'code', content: afterOpen });
       break;
     }
-
     parts.push({ type: 'code', content: afterOpen.slice(0, codeEnd) });
     remaining = afterOpen.slice(codeEnd + 7);
   }
@@ -50,26 +46,52 @@ export default function QuestionPanel({
 
   return (
     <div
-      className={`border border-[var(--border)] bg-[var(--panel)] p-5 ${className}`}
+      className={`question-panel ${className}`}
+      style={{
+        border: `var(--border-width) solid var(--border)`,
+        borderRadius: 'var(--radius)',
+        background: 'var(--panel)',
+        padding: '20px',
+        boxShadow: 'var(--shadow-sm)',
+        transition: 'background 0.35s, border-color 0.35s',
+      }}
     >
-      <div className="text-[10px] text-[var(--muted)] tracking-[0.25em] uppercase mb-4 flex items-center gap-2">
+      <div
+        className="text-[10px] tracking-[0.25em] uppercase mb-4 flex items-center gap-2"
+        style={{ color: 'var(--muted)' }}
+      >
         <span
           className="inline-block w-2 h-2 rounded-full"
-          style={{ backgroundColor: isStreaming ? 'var(--cyan)' : 'var(--green)' }}
+          style={{
+            backgroundColor: isStreaming ? 'var(--accent)' : 'var(--positive)',
+          }}
         />
         {isStreaming ? 'GENERATING' : 'QUESTION'}
       </div>
 
-      <div className="text-[var(--text)] leading-relaxed text-sm">
+      <div
+        className="question-text leading-relaxed text-sm"
+        style={{ color: 'var(--text)', fontFamily: 'var(--font-body)' }}
+      >
         {question.length === 0 && isStreaming ? (
-          <span className="cursor-blink text-[var(--cyan)]">▋</span>
+          <span className="cursor-blink" style={{ color: 'var(--accent)' }}>
+            ▋
+          </span>
         ) : (
           <>
             {parts.map((part, i) =>
               part.type === 'code' ? (
                 <pre
                   key={i}
-                  className="my-3 p-4 bg-[#060a0e] border border-[var(--border)] text-[var(--cyan)] overflow-x-auto text-xs leading-relaxed whitespace-pre"
+                  className="code-block my-3 p-4 overflow-x-auto leading-relaxed whitespace-pre"
+                  style={{
+                    background: 'var(--code-bg)',
+                    border: `var(--border-width) solid var(--border)`,
+                    borderRadius: 'var(--radius-sm)',
+                    color: 'var(--code-color)',
+                    fontSize: '12px',
+                    fontFamily: 'var(--code-font)',
+                  }}
                 >
                   {part.content}
                 </pre>
@@ -80,7 +102,12 @@ export default function QuestionPanel({
               ),
             )}
             {isStreaming && (
-              <span className="cursor-blink text-[var(--cyan)]">▋</span>
+              <span
+                className="cursor-blink"
+                style={{ color: 'var(--accent)' }}
+              >
+                ▋
+              </span>
             )}
           </>
         )}

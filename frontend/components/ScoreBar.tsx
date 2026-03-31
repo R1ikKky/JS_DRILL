@@ -10,30 +10,45 @@ export default function ScoreBar({ score }: ScoreBarProps) {
   const total = score.correct + score.wrong + score.skipped;
 
   return (
-    <div className="flex items-center gap-4 text-xs tracking-[0.15em] uppercase">
+    <div
+      className="flex items-center gap-4 text-xs tracking-[0.15em] uppercase"
+      style={{ fontFamily: 'var(--font-body)' }}
+    >
       <div className="flex items-center gap-1.5">
         <span
           className="inline-block w-2 h-2"
-          style={{ backgroundColor: 'var(--green)' }}
+          style={{ background: 'var(--positive)', borderRadius: 'var(--tag-radius)' }}
         />
-        <span style={{ color: 'var(--green)' }}>{score.correct}</span>
+        <span className="score-num" style={{ color: 'var(--positive)' }}>
+          {score.correct}
+        </span>
       </div>
       <div className="flex items-center gap-1.5">
         <span
           className="inline-block w-2 h-2"
-          style={{ backgroundColor: 'var(--red)' }}
+          style={{ background: 'var(--negative)', borderRadius: 'var(--tag-radius)' }}
         />
-        <span style={{ color: 'var(--red)' }}>{score.wrong}</span>
+        <span className="score-num" style={{ color: 'var(--negative)' }}>
+          {score.wrong}
+        </span>
       </div>
       <div className="flex items-center gap-1.5">
         <span
           className="inline-block w-2 h-2"
-          style={{ backgroundColor: 'var(--muted)' }}
+          style={{ background: 'var(--muted)', borderRadius: 'var(--tag-radius)' }}
         />
-        <span style={{ color: 'var(--muted)' }}>{score.skipped}</span>
+        <span className="score-num" style={{ color: 'var(--muted)' }}>
+          {score.skipped}
+        </span>
       </div>
       {total > 0 && (
-        <div className="text-[var(--muted)] pl-2 border-l border-[var(--border)]">
+        <div
+          className="pl-2"
+          style={{
+            color: 'var(--muted)',
+            borderLeft: `var(--border-width) solid var(--border)`,
+          }}
+        >
           {Math.round((score.correct / total) * 100)}%
         </div>
       )}

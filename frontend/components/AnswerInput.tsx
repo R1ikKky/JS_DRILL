@@ -37,14 +37,31 @@ export default function AnswerInput({
       disabled={disabled}
       rows={8}
       placeholder={disabled ? '' : 'Введи ответ здесь...'}
-      className={[
-        'w-full p-4 bg-[var(--panel)] border text-[var(--text)] text-sm',
-        'font-mono leading-relaxed resize-y outline-none',
-        'placeholder:text-[var(--muted)] transition-colors duration-150',
-        disabled
-          ? 'border-[var(--border)] opacity-50 cursor-not-allowed'
-          : 'border-[var(--border)] focus:border-[var(--amber)]',
-      ].join(' ')}
+      style={{
+        width: '100%',
+        padding: '16px',
+        background: 'var(--panel)',
+        border: `var(--border-width) solid var(--border)`,
+        borderRadius: 'var(--input-radius)',
+        color: 'var(--text)',
+        fontSize: '14px',
+        fontFamily: 'var(--font-mono-theme)',
+        lineHeight: '1.6',
+        resize: 'vertical',
+        outline: 'none',
+        opacity: disabled ? 0.5 : 1,
+        cursor: disabled ? 'not-allowed' : 'text',
+        transition: 'border-color 0.15s, background 0.35s',
+        boxSizing: 'border-box',
+      }}
+      onFocus={(e) => {
+        if (!disabled) {
+          (e.target as HTMLTextAreaElement).style.borderColor = 'var(--accent2)';
+        }
+      }}
+      onBlur={(e) => {
+        (e.target as HTMLTextAreaElement).style.borderColor = 'var(--border)';
+      }}
     />
   );
 }

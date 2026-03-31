@@ -1,5 +1,15 @@
 import type { Metadata } from 'next';
-import { Share_Tech_Mono, Exo_2 } from 'next/font/google';
+import {
+  Share_Tech_Mono,
+  Exo_2,
+  Nunito,
+  Pacifico,
+  Caveat,
+  Raleway,
+  Lora,
+  Quicksand,
+} from 'next/font/google';
+import { ThemeProvider } from '@/lib/ThemeContext';
 import './globals.css';
 
 const shareTechMono = Share_Tech_Mono({
@@ -10,9 +20,52 @@ const shareTechMono = Share_Tech_Mono({
 });
 
 const exo2 = Exo_2({
-  weight: ['300', '400', '600', '700'],
+  weight: ['300', '400', '600', '800'],
   subsets: ['latin', 'cyrillic'],
-  variable: '--font-sans',
+  variable: '--font-exo',
+  display: 'swap',
+});
+
+const nunito = Nunito({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['latin'],
+  variable: '--font-sour',
+  display: 'swap',
+});
+
+const pacifico = Pacifico({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-pacifico',
+  display: 'swap',
+});
+
+const caveat = Caveat({
+  weight: ['400', '600', '700'],
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-caveat',
+  display: 'swap',
+});
+
+const raleway = Raleway({
+  weight: ['300', '400', '600', '700', '800'],
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-raleway',
+  display: 'swap',
+});
+
+const lora = Lora({
+  weight: ['400', '600'],
+  style: ['normal', 'italic'],
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-lora',
+  display: 'swap',
+});
+
+const quicksand = Quicksand({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['latin'],
+  variable: '--font-quicksand',
   display: 'swap',
 });
 
@@ -27,12 +80,22 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const fontVars = [
+    shareTechMono.variable,
+    exo2.variable,
+    nunito.variable,
+    pacifico.variable,
+    caveat.variable,
+    raleway.variable,
+    lora.variable,
+    quicksand.variable,
+  ].join(' ');
+
   return (
-    <html
-      lang="ru"
-      className={`${shareTechMono.variable} ${exo2.variable}`}
-    >
-      <body className="font-mono antialiased">{children}</body>
+    <html lang="ru" className={fontVars}>
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

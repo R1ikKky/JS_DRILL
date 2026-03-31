@@ -2,16 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Default CSS variables (console theme) ─────────────────────────────── */
 :root {
   --bg: #080c10;
+  --bg2: #0d1318;
   --panel: #0d1318;
   --border: #1a2a35;
-  --cyan: #00d4ff;
-  --amber: #ffaa00;
-  --green: #00ff88;
-  --red: #ff4466;
+  --accent: #00d4ff;
+  --accent2: #ffaa00;
+  --positive: #00ff88;
+  --negative: #ff4466;
   --muted: #4a6070;
   --text: #c8dce8;
+  --text-strong: #ffffff;
+  --radius: 0px;
+  --radius-sm: 0px;
+  --btn-radius: 0px;
+  --tag-radius: 0px;
+  --input-radius: 0px;
+  --modal-radius: 0px;
+  --border-width: 1px;
+  --font-head: var(--font-exo);
+  --font-mono-theme: var(--font-mono);
+  --font-body: var(--font-exo);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --grid-bg: none;
 }
 
 *,
@@ -25,73 +41,221 @@ html {
 }
 
 body {
-  background-color: var(--bg);
+  background: var(--bg);
   color: var(--text);
+  font-family: var(--font-body);
   min-height: 100vh;
   position: relative;
+  transition: background 0.35s, color 0.35s;
 }
 
-/* Grid background pattern */
+/* Grid background pattern (driven by --grid-bg) */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: linear-gradient(
-      rgba(0, 212, 255, 0.025) 1px,
-      transparent 1px
-    ),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.025) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background: var(--grid-bg);
   pointer-events: none;
   z-index: 0;
 }
 
-/* Blinking cursor */
-@keyframes blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
+/* Aurora dreamy blobs */
+[data-theme='aurora'] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 20%, rgba(124, 92, 232, 0.09) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 35% at 85% 75%, rgba(78, 184, 216, 0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 60% 10%, rgba(160, 140, 230, 0.07) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Modal entrance animation ───────────────────────────────────────────── */
+@keyframes modal-in {
+  from {
     opacity: 0;
+    transform: scale(0.93) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 
-.cursor-blink {
-  animation: blink 1s step-end infinite;
+/* ── Blinking cursor ────────────────────────────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
+.cursor-blink { animation: blink 1s step-end infinite; }
 
-/* Animated loading dots */
+/* ── Loading dots ───────────────────────────────────────────────────────── */
 @keyframes loading-dots {
-  0% {
-    content: '.';
-  }
-  33% {
-    content: '..';
-  }
-  66% {
-    content: '...';
-  }
+  0%  { content: '.'; }
+  33% { content: '..'; }
+  66% { content: '...'; }
 }
-
 .loading-dots::after {
   content: '.';
   animation: loading-dots 1.2s steps(3, end) infinite;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
+/* ── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CONSOLE — left accent bar on panels
+   ══════════════════════════════════════════════════════════════════════════ */
+[data-theme='console'] .question-panel,
+[data-theme='console'] .feedback-panel {
+  border-left: 3px solid var(--accent);
 }
 
-::-webkit-scrollbar-track {
-  background: var(--bg);
+[data-theme='console'] .topic-btn {
+  position: relative;
+}
+[data-theme='console'] .topic-btn::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+[data-theme='console'] .topic-btn:hover::before,
+[data-theme='console'] .topic-btn.active::before { opacity: 1; }
+[data-theme='console'] .topic-btn:hover,
+[data-theme='console'] .topic-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(0, 212, 255, 0.05);
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--border);
+/* ══════════════════════════════════════════════════════════════════════════
+   SKETCH — dashed borders + offset shadows
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Paper texture overlay */
+[data-theme='sketch'] body::before {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      rgba(150, 120, 60, 0.06) 27px,
+      rgba(150, 120, 60, 0.06) 28px
+    );
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
+[data-theme='sketch'] .topic-btn,
+[data-theme='sketch'] .diff-btn,
+[data-theme='sketch'] .btn-fire,
+[data-theme='sketch'] .btn-submit,
+[data-theme='sketch'] .question-panel,
+[data-theme='sketch'] .feedback-panel,
+[data-theme='sketch'] textarea {
+  border-style: dashed;
 }
+
+[data-theme='sketch'] .topic-btn {
+  box-shadow: 2px 2px 0 var(--border);
+  transition: all 0.12s ease;
+}
+[data-theme='sketch'] .topic-btn:hover {
+  box-shadow: 5px 5px 0 var(--border);
+  transform: translate(-2px, -2px);
+}
+[data-theme='sketch'] .topic-btn.active {
+  box-shadow: 4px 4px 0 var(--accent);
+  transform: translate(-1px, -1px);
+  border-color: var(--accent) !important;
+}
+
+[data-theme='sketch'] .btn-fire {
+  box-shadow: 4px 4px 0 var(--border);
+  transition: all 0.12s ease;
+}
+[data-theme='sketch'] .btn-fire:hover {
+  box-shadow: 7px 7px 0 var(--border);
+  transform: translate(-3px, -3px);
+}
+
+[data-theme='sketch'] .btn-submit {
+  box-shadow: 3px 3px 0 var(--border);
+  transition: all 0.12s ease;
+}
+[data-theme='sketch'] .btn-submit:hover {
+  box-shadow: 5px 5px 0 var(--border);
+  transform: translate(-2px, -2px);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   AESTHETIC — pink lift hover
+   ══════════════════════════════════════════════════════════════════════════ */
+[data-theme='aesthetic'] .topic-btn:hover,
+[data-theme='aesthetic'] .topic-btn.active {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(232, 114, 154, 0.18);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   AURORA — purple lift hover
+   ══════════════════════════════════════════════════════════════════════════ */
+[data-theme='aurora'] .topic-btn:hover,
+[data-theme='aurora'] .topic-btn.active {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124, 92, 232, 0.14);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   RICH — warm shadow hover
+   ══════════════════════════════════════════════════════════════════════════ */
+[data-theme='rich'] .topic-btn:hover,
+[data-theme='rich'] .topic-btn.active {
+  box-shadow: 0 4px 16px rgba(184, 146, 42, 0.12);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SKETCH — rotated h1
+   ══════════════════════════════════════════════════════════════════════════ */
+[data-theme='sketch'] h1 {
+  transform: rotate(-1deg);
+  display: inline-block;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FONT SIZE OVERRIDES PER THEME
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* sketch — larger handwritten feel */
+[data-theme='sketch'] .topic-btn    { font-size: 20px; font-weight: 600; }
+[data-theme='sketch'] .diff-btn     { font-size: 19px; font-weight: 600; }
+[data-theme='sketch'] .btn-fire     { font-size: 24px; font-weight: 700; }
+[data-theme='sketch'] .question-text { font-size: 22px; font-weight: 600; line-height: 1.8; }
+[data-theme='sketch'] .feedback-text { font-size: 20px; font-weight: 500; }
+[data-theme='sketch'] .verdict       { font-size: 22px; font-weight: 700; }
+[data-theme='sketch'] textarea        { font-size: 20px; }
+[data-theme='sketch'] .code-block    { font-family: var(--font-caveat); font-size: 19px; font-weight: 600; }
+
+/* rich — italic heading */
+[data-theme='rich'] h1 { font-style: italic; }
+
+/* aurora — slightly larger body */
+[data-theme='aurora'] .question-text { font-size: 16px; font-weight: 500; }
+[data-theme='aurora'] .feedback-text { font-size: 15px; font-weight: 500; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SCORE BAR
+   ══════════════════════════════════════════════════════════════════════════ */
+.score-num {
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 800;
+}
+[data-theme='sketch'] .score-num { font-size: 28px; }
