@@ -1,12 +1,14 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
+import { Mode } from '../types/drill';
 
 interface AnswerInputProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
   disabled: boolean;
+  mode?: Mode;
 }
 
 export default function AnswerInput({
@@ -14,6 +16,7 @@ export default function AnswerInput({
   onChange,
   onSubmit,
   disabled,
+  mode = 'drill',
 }: AnswerInputProps) {
   const ref = useRef<HTMLTextAreaElement>(null);
 
@@ -36,10 +39,11 @@ export default function AnswerInput({
       }}
       disabled={disabled}
       rows={8}
-      placeholder={disabled ? '' : 'Введи ответ здесь...'}
+      placeholder={disabled ? '' : mode === 'theory' ? 'Напиши свой ответ здесь...' : 'Введи ответ здесь...'}
       className={[
         'w-full p-4 bg-[var(--panel)] border text-[var(--text)] text-sm',
-        'font-mono leading-relaxed resize-y outline-none',
+        mode === 'theory' ? 'leading-relaxed' : 'font-mono leading-relaxed',
+        'resize-y outline-none',
         'placeholder:text-[var(--muted)] transition-colors duration-150',
         disabled
           ? 'border-[var(--border)] opacity-50 cursor-not-allowed'

@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Default CSS variables (console theme) ─────────────────────────────── */
 :root {
   --bg: #080c10;
   --panel: #0d1318;
@@ -12,6 +13,10 @@
   --red: #ff4466;
   --muted: #4a6070;
   --text: #c8dce8;
+  --font-body: var(--font-mono);
+  --code-bg: #060a0e;
+  --code-color: #00d4ff;
+  --code-font: var(--font-mono);
 }
 
 *,
@@ -27,71 +32,112 @@ html {
 body {
   background-color: var(--bg);
   color: var(--text);
+  font-family: var(--font-body);
   min-height: 100vh;
   position: relative;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-/* Grid background pattern */
+/* Grid background (console theme) */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: linear-gradient(
-      rgba(0, 212, 255, 0.025) 1px,
-      transparent 1px
-    ),
+  background-image: linear-gradient(rgba(0, 212, 255, 0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 212, 255, 0.025) 1px, transparent 1px);
   background-size: 40px 40px;
   pointer-events: none;
   z-index: 0;
 }
 
-/* Blinking cursor */
+/* Non-console themes: hide grid */
+[data-theme='aesthetic'] body::before,
+[data-theme='rich'] body::before,
+[data-theme='aurora'] body::before {
+  display: none;
+}
+
+/* Sketch: paper lines texture */
+[data-theme='sketch'] body::before {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 27px,
+    rgba(150, 120, 60, 0.06) 27px,
+    rgba(150, 120, 60, 0.06) 28px
+  );
+  background-size: auto;
+}
+
+/* Light themes: switch color scheme */
+[data-theme='aesthetic'],
+[data-theme='rich'],
+[data-theme='sketch'],
+[data-theme='aurora'] {
+  color-scheme: light;
+}
+
+/* ── Modal animation ────────────────────────────────────────────────────── */
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+
+/* ── Blinking cursor ────────────────────────────────────────────────────── */
 @keyframes blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
+.cursor-blink { animation: blink 1s step-end infinite; }
 
-.cursor-blink {
-  animation: blink 1s step-end infinite;
-}
-
-/* Animated loading dots */
+/* ── Loading dots ───────────────────────────────────────────────────────── */
 @keyframes loading-dots {
-  0% {
-    content: '.';
-  }
-  33% {
-    content: '..';
-  }
-  66% {
-    content: '...';
-  }
+  0%  { content: '.';   }
+  33% { content: '..';  }
+  66% { content: '...'; }
 }
-
 .loading-dots::after {
   content: '.';
   animation: loading-dots 1.2s steps(3, end) infinite;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
+/* ── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SKETCH — dashed borders + offset shadows
+   ══════════════════════════════════════════════════════════════════════════ */
+[data-theme='sketch'] button,
+[data-theme='sketch'] textarea,
+[data-theme='sketch'] .border {
+  border-style: dashed !important;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--bg);
+[data-theme='sketch'] button {
+  box-shadow: 2px 2px 0 var(--border);
+  transition: all 0.12s ease !important;
+}
+[data-theme='sketch'] button:hover:not(:disabled) {
+  box-shadow: 5px 5px 0 var(--border);
+  transform: translate(-2px, -2px);
+}
+[data-theme='sketch'] button:active:not(:disabled) {
+  box-shadow: 1px 1px 0 var(--border);
+  transform: translate(0, 0);
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--border);
+/* Sketch heading tilt */
+[data-theme='sketch'] h1 {
+  transform: rotate(-1deg);
+  display: inline-block;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
-}
+/* Sketch font sizes */
+[data-theme='sketch'] button        { font-size: 18px !important; }
+[data-theme='sketch'] textarea      { font-size: 19px !important; }
+[data-theme='sketch'] p,
+[data-theme='sketch'] span,
+[data-theme='sketch'] div           { font-family: var(--font-body); }

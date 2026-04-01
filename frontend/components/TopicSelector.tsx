@@ -3,21 +3,21 @@
 import { Topic, TOPIC_LABELS } from '../types/drill';
 
 interface TopicSelectorProps {
+  topics: Topic[];
   selected: Topic | null;
   onSelect: (topic: Topic) => void;
   disabled: boolean;
 }
 
-const TOPICS = Object.keys(TOPIC_LABELS) as Topic[];
-
 export default function TopicSelector({
+  topics,
   selected,
   onSelect,
   disabled,
 }: TopicSelectorProps) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-      {TOPICS.map((topic) => {
+      {topics.map((topic) => {
         const isActive = selected === topic;
         return (
           <button

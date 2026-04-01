@@ -18,16 +18,18 @@ export class DrillService {
   constructor(@Inject(DEEPSEEK_CLIENT) private readonly deepseek: OpenAI) {}
 
   streamQuestion(dto: QuestionQueryDto): Observable<MessageEvent> {
-    const prompt = buildQuestionPrompt(dto.topic, dto.difficulty);
+    const prompt = buildQuestionPrompt(dto.track, dto.topic, dto.difficulty, dto.mode ?? 'drill');
     return this.createStream(prompt);
   }
 
   streamEvaluation(dto: EvaluateBodyDto): Observable<MessageEvent> {
     const prompt = buildEvaluationPrompt(
+      dto.track,
       dto.topic,
       dto.difficulty,
       dto.question,
       dto.answer,
+      dto.mode ?? 'drill',
     );
     return this.createStream(prompt);
   }

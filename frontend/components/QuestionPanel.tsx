@@ -69,7 +69,8 @@ export default function QuestionPanel({
               part.type === 'code' ? (
                 <pre
                   key={i}
-                  className="my-3 p-4 bg-[#060a0e] border border-[var(--border)] text-[var(--cyan)] overflow-x-auto text-xs leading-relaxed whitespace-pre"
+                  className="my-3 p-4 border border-[var(--border)] overflow-x-auto text-xs leading-relaxed whitespace-pre"
+                  style={{ background: 'var(--code-bg)', color: 'var(--code-color)', fontFamily: 'var(--code-font)' }}
                 >
                   {part.content}
                 </pre>

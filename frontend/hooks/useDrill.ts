@@ -1,11 +1,13 @@
 'use client';
 
 import { useReducer, useCallback, useRef } from 'react';
-import { DrillState, Topic, Difficulty, Verdict } from '../types/drill';
+import { DrillState, Topic, Track, Mode, Difficulty, Verdict } from '../types/drill';
 import { buildQuestionUrl, buildEvaluateUrl } from '../lib/api';
 import { useSSE } from './useSSE';
 
 type DrillAction =
+  | { type: 'SET_TRACK'; track: Track }
+  | { type: 'SET_MODE'; mode: Mode }
   | { type: 'SET_TOPIC'; topic: Topic }
   | { type: 'SET_DIFFICULTY'; difficulty: Difficulty }
   | { type: 'START_QUESTION' }
@@ -21,6 +23,8 @@ type DrillAction =
 
 const initialState: DrillState = {
   phase: 'idle',
+  track: 'js',
+  mode: 'drill',
   topic: null,
   difficulty: 'medium',
   question: '',
@@ -40,8 +44,32 @@ function extractVerdict(text: string): Verdict {
 
 function drillReducer(state: DrillState, action: DrillAction): DrillState {
   switch (action.type) {
+    case 'SET_TRACK':
+      return {
+        ...state,
+        track: action.track,
+        mode: 'drill',
+        topic: null,
+        question: '',
+        answer: '',
+        feedback: '',
+        verdict: null,
+        phase: 'idle',
+      };
+
+    case 'SET_MODE':
+      return { ...state, mode: action.mode };
+
     case 'SET_TOPIC':
-      return { ...state, topic: action.topic };
+      return {
+        ...state,
+        topic: action.topic,
+        phase: 'idle',
+        question: '',
+        answer: '',
+        feedback: '',
+        verdict: null,
+      };
 
     case 'SET_DIFFICULTY':
       return { ...state, difficulty: action.difficulty };
@@ -130,14 +158,14 @@ export function useDrill() {
   stateRef.current = state;
 
   const fireQuestion = useCallback(async (): Promise<void> => {
-    const { topic, difficulty } = stateRef.current;
+    const { track, topic, difficulty, mode } = stateRef.current;
     if (!topic) return;
 
     cancel();
     dispatch({ type: 'START_QUESTION' });
 
     await startStream(
-      buildQuestionUrl(topic, difficulty),
+      buildQuestionUrl(track, topic, difficulty, mode),
       {
         method: 'GET',
         headers: { Accept: 'text/event-stream' },
@@ -152,7 +180,7 @@ export function useDrill() {
   }, [startStream, cancel]);
 
   const submitAnswer = useCallback(async (): Promise<void> => {
-    const { topic, difficulty, question, answer } = stateRef.current;
+    const { track, topic, difficulty, mode, question, answer } = stateRef.current;
     if (!topic || !answer.trim()) return;
 
     cancel();
@@ -166,7 +194,7 @@ export function useDrill() {
           'Content-Type': 'application/json',
           Accept: 'text/event-stream',
         },
-        body: JSON.stringify({ topic, difficulty, question, answer }),
+        body: JSON.stringify({ track, topic, difficulty, mode, question, answer }),
       },
       {
         onToken: (token) =>
@@ -187,6 +215,14 @@ export function useDrill() {
     dispatch({ type: 'NEXT_QUESTION' });
   }, [cancel]);
 
+  const setTrack = useCallback((track: Track): void => {
+    dispatch({ type: 'SET_TRACK', track });
+  }, []);
+
+  const setMode = useCallback((mode: Mode): void => {
+    dispatch({ type: 'SET_MODE', mode });
+  }, []);
+
   const setTopic = useCallback((topic: Topic): void => {
     dispatch({ type: 'SET_TOPIC', topic });
   }, []);
@@ -201,6 +237,8 @@ export function useDrill() {
 
   return {
     state,
+    setTrack,
+    setMode,
     setTopic,
     setDifficulty,
     setAnswer,
