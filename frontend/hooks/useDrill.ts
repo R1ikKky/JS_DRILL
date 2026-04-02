@@ -4,6 +4,7 @@ import { useReducer, useCallback, useRef } from 'react';
 import { DrillState, Topic, Track, Mode, Difficulty, Verdict } from '../types/drill';
 import { buildQuestionUrl, buildEvaluateUrl } from '../lib/api';
 import { useSSE } from './useSSE';
+import { useAuth } from '../lib/AuthContext';
 
 type DrillAction =
   | { type: 'SET_TRACK'; track: Track }
@@ -152,6 +153,7 @@ function drillReducer(state: DrillState, action: DrillAction): DrillState {
 export function useDrill() {
   const [state, dispatch] = useReducer(drillReducer, initialState);
   const { startStream, cancel } = useSSE();
+  const { accessToken } = useAuth();
 
   // Keep a ref so async callbacks always read latest state
   const stateRef = useRef(state);
@@ -186,14 +188,19 @@ export function useDrill() {
     cancel();
     dispatch({ type: 'START_EVALUATION' });
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Accept: 'text/event-stream',
+    };
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
     await startStream(
       buildEvaluateUrl(),
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'text/event-stream',
-        },
+        headers,
         body: JSON.stringify({ track, topic, difficulty, mode, question, answer }),
       },
       {
@@ -203,7 +210,7 @@ export function useDrill() {
         onError: () => dispatch({ type: 'STREAM_ERROR' }),
       },
     );
-  }, [startStream, cancel]);
+  }, [startStream, cancel, accessToken]);
 
   const skipQuestion = useCallback((): void => {
     cancel();

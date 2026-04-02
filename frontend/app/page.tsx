@@ -12,10 +12,13 @@ import AnswerInput from '../components/AnswerInput';
 import FeedbackPanel from '../components/FeedbackPanel';
 import ScoreBar from '../components/ScoreBar';
 import ThemePickerModal from '../components/ThemePickerModal';
+import UserBadge from '../components/UserBadge';
+import ProfileModal from '../components/ProfileModal';
 import { TRACK_TOPICS, THEORY_TOPICS, TOPIC_LABELS, TRACK_LABELS, DIFFICULTY_LABELS } from '../types/drill';
 
 export default function Home() {
   const [themeOpen, setThemeOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const { themeId } = useTheme();
   const {
     state,
@@ -45,6 +48,7 @@ export default function Home() {
   return (
     <main className="min-h-screen relative z-10">
       <ThemePickerModal open={themeOpen} onClose={() => setThemeOpen(false)} />
+      <ProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
 
@@ -63,6 +67,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-4">
               {hasInteracted && <ScoreBar score={score} />}
+              <UserBadge onOpenProfile={() => setProfileOpen(true)} />
               <button
                 onClick={() => setThemeOpen(true)}
                 className="text-[10px] tracking-[0.2em] uppercase border px-3 py-1.5 transition-all duration-150"

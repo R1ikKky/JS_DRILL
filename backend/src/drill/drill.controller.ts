@@ -6,21 +6,20 @@ import {
   Query,
   Sse,
   Res,
+  Req,
 } from '@nestjs/common';
 import type { MessageEvent } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { DrillService, SsePayload } from './drill.service';
 import { QuestionQueryDto, EvaluateBodyDto } from './drill.dto';
+import { OptionalAuth } from '../common/decorators/optional-auth.decorator';
 
+@OptionalAuth()
 @Controller('drill')
 export class DrillController {
   constructor(private readonly drillService: DrillService) {}
 
-  /**
-   * GET /drill/question?topic=promises&difficulty=medium
-   * Returns an SSE stream of the generated question token by token.
-   */
   @Sse('question')
   streamQuestion(
     @Query() query: QuestionQueryDto,
@@ -28,16 +27,10 @@ export class DrillController {
     return this.drillService.streamQuestion(query);
   }
 
-  /**
-   * POST /drill/evaluate
-   * Returns an SSE stream of the evaluation/feedback token by token.
-   *
-   * NestJS @Sse() only supports GET, so we handle POST SSE manually
-   * via @Res() with raw Express response writes.
-   */
   @Post('evaluate')
   streamEvaluation(
     @Body() body: EvaluateBodyDto,
+    @Req() req: Request & { user?: { userId: string } },
     @Res() res: Response,
   ): void {
     res.setHeader('Content-Type', 'text/event-stream');
@@ -45,7 +38,8 @@ export class DrillController {
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
 
-    const observable = this.drillService.streamEvaluation(body);
+    const userId = req.user?.userId;
+    const observable = this.drillService.streamEvaluation(body, userId);
 
     const subscription = observable.subscribe({
       next: (event: MessageEvent) => {

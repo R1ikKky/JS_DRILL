@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 import { useTheme } from '@/lib/ThemeContext';
+import { useAuth } from '@/lib/AuthContext';
+import { updateTheme } from '@/lib/authApi';
 import { THEME_ORDER, THEMES, ThemeId } from '@/lib/themes';
 
 const FONT_OPTIONS = [
@@ -98,6 +100,7 @@ interface Props {
 
 export default function ThemePickerModal({ open, onClose }: Props) {
   const { themeId, theme, setTheme, codeOverride, setCodeOverride } = useTheme();
+  const { accessToken } = useAuth();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -111,6 +114,9 @@ export default function ThemePickerModal({ open, onClose }: Props) {
 
   const handleSelect = (id: ThemeId) => {
     setTheme(id);
+    if (accessToken) {
+      void updateTheme(id, accessToken).catch(() => {/* non-critical */});
+    }
     timerRef.current = setTimeout(onClose, 260);
   };
 

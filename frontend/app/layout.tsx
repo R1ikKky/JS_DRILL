@@ -10,6 +10,7 @@ import {
   Quicksand,
 } from 'next/font/google';
 import { ThemeProvider } from '@/lib/ThemeContext';
+import { AuthProvider } from '@/lib/AuthContext';
 import './globals.css';
 
 const shareTechMono = Share_Tech_Mono({
@@ -89,7 +90,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ru" className={fontVars}>
       <body className="antialiased">
-        <ThemeProvider>{children}</ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
