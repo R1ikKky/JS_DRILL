@@ -13,6 +13,7 @@ import {
   authLogout,
   authRefresh,
   authRegister,
+  getProfile,
   UserPublic,
 } from './authApi';
 
@@ -43,18 +44,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshAccessToken = useCallback(async (): Promise<string | null> => {
     if (refreshPromise.current) return refreshPromise.current;
 
-    refreshPromise.current = authRefresh().then((data) => {
-      refreshPromise.current = null;
-      if (!data) {
-        setUserState(null);
-        setAccessToken(null);
-        return null;
-      }
-      setAccessToken(data.accessToken);
-      return data.accessToken;
-    });
+    const p = authRefresh()
+      .then(async (data) => {
+        if (!data) {
+          setUserState(null);
+          setAccessToken(null);
+          return null;
+        }
+        setAccessToken(data.accessToken);
+        try {
+          const profile = await getProfile(data.accessToken);
+          setUserState(profile);
+        } catch { /* non-critical */ }
+        return data.accessToken;
+      })
+      .finally(() => { refreshPromise.current = null; });
 
-    return refreshPromise.current;
+    refreshPromise.current = p;
+    return p;
   }, []);
 
   // Silent refresh on mount to restore session

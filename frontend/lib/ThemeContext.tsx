@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { ThemeId, ThemeConfig, THEMES, DEFAULT_THEME } from './themes';
+import { useAuth } from './AuthContext';
 
 export interface CodeOverride {
   bg: string;
@@ -20,8 +21,16 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   const [themeId, setThemeId] = useState<ThemeId>(DEFAULT_THEME);
   const [codeOverride, setCodeOverrideState] = useState<CodeOverride | null>(null);
+
+  // Apply server-side theme when user session is restored
+  useEffect(() => {
+    if (!user?.preferredTheme) return;
+    const serverTheme = user.preferredTheme as ThemeId;
+    if (THEMES[serverTheme]) setThemeId(serverTheme);
+  }, [user?.preferredTheme]);
 
   useEffect(() => {
     const saved = localStorage.getItem('drill-theme') as ThemeId | null;
